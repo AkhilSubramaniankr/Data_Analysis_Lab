@@ -1,6 +1,9 @@
 "use client";
 
-/** Decorative Canvas background: floating particles, subtle mouse response and cursor trails. */
+/**
+ * Advanced ParticleBackground — Combines smooth delta-time physics, pointer events,
+ * live intensity updates, mouse trails, and constellation connection lines.
+ */
 import * as React from "react";
 
 type Intensity = "off" | "subtle" | "normal";
@@ -10,9 +13,14 @@ const COUNTS: Record<Intensity, number> = { off: 0, subtle: 50, normal: 80 };
 
 type Particle = {
   x: number; y: number; vx: number; vy: number;
+  baseX: number; baseY: number;
   radius: number; opacity: number; phase: number; lifetime: number;
 };
-type Trail = { x: number; y: number; vx: number; vy: number; radius: number; age: number; lifetime: number };
+
+type Trail = {
+  x: number; y: number; vx: number; vy: number;
+  radius: number; age: number; lifetime: number;
+};
 
 function readIntensity(): Intensity {
   if (typeof window === "undefined") return "subtle";
@@ -23,7 +31,7 @@ function readIntensity(): Intensity {
 }
 
 function writeIntensity(value: Intensity) {
-  try { window.localStorage.setItem(STORAGE_KEY, value); } catch { /* storage optional */ }
+  try { window.localStorage.setItem(STORAGE_KEY, value); } catch { /* optional */ }
   window.dispatchEvent(new CustomEvent<Intensity>(CHANGE_EVENT, { detail: value }));
 }
 
@@ -47,17 +55,20 @@ export function ParticleBackground() {
     let visible = !document.hidden;
     let disposed = false;
     let resizeTimer: ReturnType<typeof setTimeout> | undefined;
+    
     const mouse = { x: -1000, y: -1000, active: false };
     let particles: Particle[] = [];
     let trails: Trail[] = [];
 
     function createParticle(fromBottom = false): Particle {
+      const x = Math.random() * width;
+      const y = fromBottom ? height + 4 : Math.random() * height;
       return {
-        x: Math.random() * width,
-        y: fromBottom ? height + 4 : Math.random() * height,
+        x, y,
+        baseX: x, baseY: y,
         vx: (Math.random() - 0.5) * 0.16,
         vy: -(0.09 + Math.random() * 0.18),
-        radius: 0.8 + Math.random() * 1.3,
+        radius: 0.9 + Math.random() * 1.3,
         opacity: 0.2 + Math.random() * 0.22,
         phase: Math.random() * Math.PI * 2,
         lifetime: 0,
@@ -86,13 +97,65 @@ export function ParticleBackground() {
     function render() {
       if (!ctx) return;
       ctx.clearRect(0, 0, width, height);
+
+      // 1. Optional Mouse Spotlight Glow
+      if (mouse.active && pointerQuery.matches && intensity !== "off") {
+        const gradient = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 140);
+        gradient.addColorStop(0, "rgba(137,220,255,0.06)");
+        gradient.addColorStop(1, "rgba(137,220,255,0)");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
+      }
+
+      // 2. Render Permanent Particles with Glow Near Mouse
       for (const p of particles) {
         const fade = Math.min(1, p.lifetime / 900);
+        let glowFactor = 0;
+        if (mouse.active) {
+          const dx = mouse.x - p.x;
+          const dy = mouse.y - p.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < 130) glowFactor = 1 - dist / 130;
+        }
+
+        const renderOpacity = Math.min(0.85, p.opacity * fade + glowFactor * 0.3);
+        const renderRadius = p.radius + glowFactor * 0.6;
+
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(207,235,255,${p.opacity * fade})`;
+        ctx.arc(p.x, p.y, renderRadius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(207,235,255,${renderOpacity})`;
         ctx.fill();
       }
+
+      // 3. Render Connection Lines (Constellation Network)
+      if (!reducedMotion && particles.length > 0 && intensity !== "off") {
+        const maxDist = 110;
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.hypot(dx, dy);
+            if (dist < maxDist) {
+              const alpha = (1 - dist / maxDist) * 0.12;
+              let lineBoost = 0;
+              if (mouse.active) {
+                const midX = (particles[i].x + particles[j].x) / 2;
+                const midY = (particles[i].y + particles[j].y) / 2;
+                const mdist = Math.hypot(mouse.x - midX, mouse.y - midY);
+                if (mdist < 180) lineBoost = (1 - mdist / 180) * 0.15;
+              }
+              ctx.strokeStyle = `rgba(180,200,220,${alpha + lineBoost})`;
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+            }
+          }
+        }
+      }
+
+      // 4. Render Mouse Trails
       for (const t of trails) {
         const alpha = Math.pow(Math.max(0, 1 - t.age / t.lifetime), 1.5) * 0.66;
         ctx.beginPath();
@@ -108,24 +171,34 @@ export function ParticleBackground() {
       const dt = previousTime ? Math.min(40, time - previousTime) : 16.67;
       previousTime = time;
       const scale = dt / 16.67;
+
+      // Update permanent particles
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
         p.lifetime += dt;
         p.phase += dt * 0.00055;
         p.x += (p.vx + Math.sin(p.phase) * 0.09) * scale;
         p.y += p.vy * scale;
+
         if (mouse.active && pointerQuery.matches) {
           const dx = mouse.x - p.x;
           const dy = mouse.y - p.y;
           const distance = Math.hypot(dx, dy);
-          if (distance > 1 && distance < 155) {
-            const strength = (1 - distance / 155) * 0.16 * scale;
-            p.x += (dx / distance) * strength;
-            p.y += (dy / distance) * strength;
+          if (distance > 1 && distance < 180) {
+            const strength = (1 - distance / 180) * 0.04 * scale;
+            p.vx += (dx / distance) * strength;
+            p.vy += (dy / distance) * strength;
           }
         }
+        p.vx += (p.baseX - p.x) * 0.002;
+        p.vy += (p.baseY - p.y) * 0.002;
+        p.vx *= 0.96;
+        p.vy *= 0.96;
+
         if (p.y < -8 || p.x < -15 || p.x > width + 15) particles[i] = createParticle(true);
       }
+
+      // Update mouse trails
       for (let i = trails.length - 1; i >= 0; i--) {
         const t = trails[i];
         t.age += dt;
@@ -136,6 +209,7 @@ export function ParticleBackground() {
         t.vx *= damping;
         t.vy *= damping;
       }
+
       render();
       schedule();
     }
@@ -156,14 +230,17 @@ export function ParticleBackground() {
       render();
       schedule();
     }
+
     function onPointerMove(event: PointerEvent) {
       if (event.pointerType !== "mouse" || !pointerQuery.matches || reducedMotion || intensity === "off") return;
       mouse.x = event.clientX;
       mouse.y = event.clientY;
       mouse.active = true;
+
       const now = performance.now();
       if (now - lastSpawn < (intensity === "normal" ? 35 : 60)) return;
       lastSpawn = now;
+
       const count = intensity === "normal" ? 2 : 1;
       for (let i = 0; i < count; i++) {
         const angle = Math.random() * Math.PI * 2;
@@ -180,6 +257,7 @@ export function ParticleBackground() {
       }
       if (trails.length > 60) trails.splice(0, trails.length - 60);
     }
+
     function onLeave() { mouse.active = false; }
     function onVisibility() {
       visible = !document.hidden;
