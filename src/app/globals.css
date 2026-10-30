@@ -1,0 +1,304 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* ────────────────────────────────────────────────────────────────────── */
+/* PREMIUM DARK THEME — dark-first design                                */
+/* The .dark class is applied on <html> in layout.tsx. These values    */
+/* are the DEFAULT (no separate :root light theme needed).               */
+/* ────────────────────────────────────────────────────────────────────── */
+
+:root,
+.dark {
+  --radius: 0.625rem;
+
+  /* Backgrounds — deep charcoal/navy per master spec */
+  --background: oklch(0.11 0.008 255);          /* #090B10 */
+  --foreground: oklch(0.94 0.004 250);          /* #F4F6FA */
+
+  --card: oklch(0.15 0.01 255);                /* #141922 */
+  --card-foreground: oklch(0.94 0.004 250);    /* #F4F6FA */
+
+  --popover: oklch(0.17 0.012 255);             /* #1A202B */
+  --popover-foreground: oklch(0.94 0.004 250);
+
+  --primary: oklch(0.72 0.14 200);              /* cyan accent #38BDF8 */
+  --primary-foreground: oklch(0.11 0.008 255);
+
+  --secondary: oklch(0.20 0.01 255);           /* #1A202B */
+  --secondary-foreground: oklch(0.94 0.004 250);
+
+  --muted: oklch(0.13 0.008 255);               /* #10141B */
+  --muted-foreground: oklch(0.62 0.015 250);    /* #9CA6B5 */
+
+  --accent: oklch(0.21 0.03 225);               /* hover surface #1B3445 */
+  --accent-foreground: oklch(0.94 0.004 250);
+
+  --destructive: oklch(0.6 0.22 25);
+  --border: oklch(0.27 0.012 250);              /* #252C38 */
+  --input: oklch(0.27 0.012 250);
+  --ring: oklch(0.72 0.14 200);                 /* cyan focus ring */
+
+  /* Chart colors — bright enough for dark background */
+  --chart-1: oklch(0.72 0.14 200);              /* cyan */
+  --chart-2: oklch(0.68 0.18 152);              /* green */
+  --chart-3: oklch(0.62 0.2 295);               /* purple */
+  --chart-4: oklch(0.75 0.16 65);               /* amber */
+  --chart-5: oklch(0.64 0.22 16);               /* red */
+
+  /* Sidebar */
+  --sidebar: oklch(0.13 0.008 255);             /* #10141B */
+  --sidebar-foreground: oklch(0.94 0.004 250);
+  --sidebar-primary: oklch(0.72 0.14 200);      /* cyan */
+  --sidebar-primary-foreground: oklch(0.11 0.008 255);
+  --sidebar-accent: oklch(0.21 0.03 225);       /* hover */
+  --sidebar-accent-foreground: oklch(0.94 0.004 250);
+  --sidebar-border: oklch(0.27 0.012 250);
+  --sidebar-ring: oklch(0.72 0.14 200);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────── */
+/* PREMIUM DESIGN SYSTEM — accent colors, role palette, glow utilities   */
+/* ────────────────────────────────────────────────────────────────────── */
+
+@theme {
+  --color-navy-50: oklch(0.972 0.014 252);
+  --color-navy-100: oklch(0.935 0.028 252);
+  --color-navy-200: oklch(0.872 0.052 252);
+  --color-navy-300: oklch(0.78 0.085 252);
+  --color-navy-400: oklch(0.68 0.115 252);
+  --color-navy-500: oklch(0.56 0.155 252);
+  --color-navy-600: oklch(0.46 0.165 252);
+  --color-navy-700: oklch(0.37 0.155 252);
+  --color-navy-800: oklch(0.28 0.12 252);
+  --color-navy-900: oklch(0.2 0.085 252);
+  --color-navy-950: oklch(0.14 0.06 252);
+
+  --color-ai-blue: oklch(0.55 0.18 252);
+  --color-ai-cyan: oklch(0.72 0.14 200);
+  --color-ai-purple: oklch(0.55 0.2 295);
+
+  --color-role-data: oklch(0.55 0.18 252);
+  --color-role-transform: oklch(0.72 0.14 200);
+  --color-role-stats: oklch(0.55 0.2 295);
+  --color-role-validated: oklch(0.62 0.16 145);
+  --color-role-warning: oklch(0.7 0.16 65);
+  --color-role-error: oklch(0.6 0.22 25);
+
+  /* Accent glow colors for premium interactions */
+  --color-glow-cyan: rgba(56, 189, 248, 0.15);
+  --color-glow-cyan-strong: rgba(56, 189, 248, 0.25);
+}
+
+/* Role utility classes */
+.role-data { --role-fg: var(--color-role-data); }
+.role-transform { --role-fg: var(--color-role-transform); }
+.role-stats { --role-fg: var(--color-role-stats); }
+.role-validated { --role-fg: var(--color-role-validated); }
+.role-warning { --role-fg: var(--color-role-warning); }
+.role-error { --role-fg: var(--color-role-error); }
+
+.text-role { color: var(--role-fg, var(--color-role-data)); }
+.bg-role-soft { background-color: color-mix(in oklch, var(--role-fg, var(--color-role-data)) 12%, transparent); }
+.border-role { border-color: color-mix(in oklch, var(--role-fg, var(--color-role-data)) 40%, transparent); }
+
+/* Mono text helper */
+.text-mono {
+  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-feature-settings: "liga" 0;
+}
+
+/* ────────────────────────────────────────────────────────────────────── */
+/* PREMIUM INTERACTION UTILITIES                                          */
+/* ────────────────────────────────────────────────────────────────────── */
+
+/* Faint technical grid texture — very low contrast */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Glass surface — for nav, cards on top of the particle layer */
+.glass {
+  background: color-mix(in oklch, var(--card) 85%, transparent);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+}
+.glass-nav {
+  background: color-mix(in oklch, var(--background) 80%, transparent);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+}
+
+/* Glow utilities — apply on hover/active via Tailwind hover: or conditional classes */
+.glow-cyan {
+  box-shadow: 0 0 12px var(--color-glow-cyan), 0 0 4px var(--color-glow-cyan-strong);
+}
+.glow-cyan-strong {
+  box-shadow: 0 0 16px var(--color-glow-cyan-strong), 0 0 6px rgba(56,189,248,0.35);
+}
+.glow-soft {
+  box-shadow: 0 0 14px rgba(255,255,255,0.04), 0 1px 3px rgba(0,0,0,0.3);
+}
+.glow-elevated {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4), 0 0 1px rgba(255,255,255,0.05);
+}
+
+/* Card hover effect — subtle border illumination + elevation */
+.card-interactive {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.card-interactive:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklch, var(--color-ai-cyan) 30%, var(--border));
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4), 0 0 12px var(--color-glow-cyan);
+}
+
+/* Active nav indicator — thin left border glow */
+.nav-active-indicator {
+  position: relative;
+}
+.nav-active-indicator::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  border-radius: 0 2px 2px 0;
+  background: var(--color-ai-cyan);
+  box-shadow: 0 0 8px var(--color-glow-cyan-strong);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.nav-active-indicator.is-active::before {
+  opacity: 1;
+}
+
+/* Focus ring — cyan glow */
+:where(a, button, [role="button"], [tabindex]):focus-visible {
+  outline: 2px solid var(--color-ai-cyan);
+  outline-offset: 2px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 4px var(--color-glow-cyan);
+}
+
+/* ────────────────────────────────────────────────────────────────────── */
+/* REDUCED MOTION — override all decorative animation                    */
+/* ────────────────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .card-interactive:hover {
+    transform: none;
+  }
+}
+
+/* Code blocks — horizontally scrollable on small screens */
+pre, code, kbd {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+
+/* Skip-link */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -3rem;
+  z-index: 100;
+  background: var(--background);
+  border: 1px solid var(--border);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  transition: top 0.15s ease;
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* ────────────────────────────────────────────────────────────────────── */
+/* SCROLLBAR — slim, dark, subtle                                        */
+/* ────────────────────────────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in oklch, var(--foreground) 15%, transparent);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklch, var(--foreground) 25%, transparent);
+}
+
+/* Selection — subtle cyan tint */
+::selection {
+  background: color-mix(in oklch, var(--color-ai-cyan) 20%, transparent);
+  color: var(--foreground);
+}
